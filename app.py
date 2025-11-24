@@ -77,7 +77,7 @@ def load_model():
     if not shutil.which("ffmpeg"):
         st.error("FFmpeg not found! Please ensure ffmpeg is installed.")
     print("Loading Whisper model...")
-    return whisper.load_model("base")
+    return whisper.load_model("small")
 
 def save_audio_file(audio_bytes, file_extension="wav"):
     """Save audio bytes to a temporary file"""
