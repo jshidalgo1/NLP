@@ -52,15 +52,28 @@ def load_model():
         
         if os.path.exists(ffmpeg_path):
             st.success(f"DEBUG: File exists at `{ffmpeg_path}`")
-            st.write(f"DEBUG: File permissions: `{oct(os.stat(ffmpeg_path).st_mode)[-3:]}`")
-            # os.chmod(ffmpeg_path, 0o755) # Skipped to avoid 'Operation not permitted' errors
+            
+            # Create a temporary directory to alias the binary as 'ffmpeg'
+            # We use a temp dir because we might not have write permissions in the package dir
+            import tempfile
+            temp_bin_dir = tempfile.mkdtemp()
+            target_ffmpeg = os.path.join(temp_bin_dir, "ffmpeg")
+            
+            # Copy the binary to 'ffmpeg' in the temp dir
+            shutil.copy(ffmpeg_path, target_ffmpeg)
+            
+            # Ensure it's executable (it should be, but let's make sure on our own copy)
+            try:
+                os.chmod(target_ffmpeg, 0o755)
+            except Exception as e:
+                st.warning(f"DEBUG: Could not chmod temp file: {e}")
+
+            # Add the temp dir to PATH temporarily
+            os.environ["PATH"] = f"{temp_bin_dir}:{os.environ.get('PATH','')}"
+            st.write(f"DEBUG: Created 'ffmpeg' alias at `{target_ffmpeg}` and updated PATH")
+            
         else:
             st.error(f"DEBUG: File DOES NOT EXIST at `{ffmpeg_path}`")
-
-        # Add the bundled binary to PATH temporarily
-        ffmpeg_dir = os.path.dirname(ffmpeg_path)
-        os.environ["PATH"] = f"{ffmpeg_dir}:{os.environ.get('PATH','')}"
-        st.write(f"DEBUG: Updated PATH with `{ffmpeg_dir}`")
         
     except Exception as e:
         st.error(f"DEBUG: Error setting up bundled ffmpeg: {e}")
