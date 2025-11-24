@@ -16,6 +16,8 @@ st.set_page_config(
 # Custom CSS for Baybayin font size
 st.markdown("""
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Tagalog&display=swap');
+    
     .baybayin-text {
         font-size: 60px;
         font-family: 'Noto Sans Tagalog', sans-serif;
@@ -34,6 +36,7 @@ st.markdown("""
     .main-header {
         text-align: center;
         font-weight: bold;
+        font-family: 'Noto Sans Tagalog', sans-serif;
     }
     </style>
     """, unsafe_allow_html=True)
