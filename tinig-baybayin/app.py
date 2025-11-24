@@ -40,6 +40,13 @@ st.markdown("""
 @st.cache_resource
 def load_model():
     """Load the Whisper model (cached to avoid reloading)"""
+    # Debug: Check if ffmpeg is available
+    import shutil
+    if not shutil.which("ffmpeg"):
+        st.error("FFmpeg not found! Please ensure ffmpeg is installed.")
+    else:
+        print(f"FFmpeg found at: {shutil.which('ffmpeg')}")
+        
     print("Loading Whisper model...")
     return whisper.load_model("base")
 
