@@ -43,17 +43,40 @@ def load_model():
     """Load the Whisper model (cached to avoid reloading)"""
     # Debug: Check if ffmpeg is available
     import shutil
+    import subprocess
+    
     # Use bundled ffmpeg from imageio_ffmpeg if system ffmpeg is missing
-    ffmpeg_path = iio_ffmpeg.get_ffmpeg_exe()
-    if not shutil.which("ffmpeg"):
-        # Add the bundled binary to PATH temporarily
-        os.environ["PATH"] = f"{os.path.dirname(ffmpeg_path)}:{os.environ.get('PATH','')}"
-        if not shutil.which("ffmpeg"):
-            st.error("FFmpeg not found! Please ensure ffmpeg is installed.")
+    try:
+        ffmpeg_path = iio_ffmpeg.get_ffmpeg_exe()
+        print(f"DEBUG: imageio_ffmpeg.get_ffmpeg_exe() returned: {ffmpeg_path}")
+        
+        if os.path.exists(ffmpeg_path):
+            print(f"DEBUG: File exists at {ffmpeg_path}")
+            print(f"DEBUG: File permissions: {oct(os.stat(ffmpeg_path).st_mode)[-3:]}")
+            # Ensure it's executable
+            os.chmod(ffmpeg_path, 0o755)
         else:
-            print(f"Bundled FFmpeg found at: {ffmpeg_path}")
+            print(f"DEBUG: File DOES NOT EXIST at {ffmpeg_path}")
+
+        # Add the bundled binary to PATH temporarily
+        ffmpeg_dir = os.path.dirname(ffmpeg_path)
+        os.environ["PATH"] = f"{ffmpeg_dir}:{os.environ.get('PATH','')}"
+        print(f"DEBUG: Updated PATH with {ffmpeg_dir}")
+        
+    except Exception as e:
+        print(f"DEBUG: Error setting up bundled ffmpeg: {e}")
+
+    if not shutil.which("ffmpeg"):
+        st.error("FFmpeg not found! Please ensure ffmpeg is installed.")
+        print("DEBUG: shutil.which('ffmpeg') returned None")
     else:
-        print(f"System FFmpeg found at: {shutil.which('ffmpeg')}")
+        print(f"System/Bundled FFmpeg found at: {shutil.which('ffmpeg')}")
+        # Try running it to see if it works
+        try:
+            version_output = subprocess.check_output(["ffmpeg", "-version"]).decode().splitlines()[0]
+            print(f"DEBUG: ffmpeg version: {version_output}")
+        except Exception as e:
+            print(f"DEBUG: Failed to run ffmpeg: {e}")
     print("Loading Whisper model...")
     return whisper.load_model("base")
 
