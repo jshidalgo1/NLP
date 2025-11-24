@@ -1,0 +1,12 @@
+name: tinig-baybayin
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - ffmpeg
+  - pip
+  - pip:
+    - openai-whisper
+    - streamlit>=1.40.0
+    - numpy
