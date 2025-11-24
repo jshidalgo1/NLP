@@ -53,8 +53,7 @@ def load_model():
         if os.path.exists(ffmpeg_path):
             st.success(f"DEBUG: File exists at `{ffmpeg_path}`")
             st.write(f"DEBUG: File permissions: `{oct(os.stat(ffmpeg_path).st_mode)[-3:]}`")
-            # Ensure it's executable
-            os.chmod(ffmpeg_path, 0o755)
+            # os.chmod(ffmpeg_path, 0o755) # Skipped to avoid 'Operation not permitted' errors
         else:
             st.error(f"DEBUG: File DOES NOT EXIST at `{ffmpeg_path}`")
 
