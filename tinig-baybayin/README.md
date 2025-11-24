@@ -44,6 +44,16 @@ A web application that records Tagalog speech, transcribes it using OpenAI Whisp
    - The app will automatically transcribe your speech and display the Baybayin translation.
    - Alternatively, you can upload an existing audio file (`.wav`, `.mp3`).
 
+## Deployment on Streamlit Cloud
+
+1. **Push to GitHub**: Ensure your project is in a public GitHub repository.
+2. **Add `packages.txt`**: This file is required to install `ffmpeg` in the cloud environment (already included).
+3. **Deploy**:
+   - Go to [share.streamlit.io](https://share.streamlit.io/).
+   - Connect your GitHub repository.
+   - Select `app.py` as the main file.
+   - Click **Deploy**.
+
 ## Technical Details
 
 ### Baybayin Transliteration
