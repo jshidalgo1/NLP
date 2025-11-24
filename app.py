@@ -46,49 +46,33 @@ def load_model():
     import subprocess
     
     # Use bundled ffmpeg from imageio_ffmpeg if system ffmpeg is missing
-    try:
-        ffmpeg_path = iio_ffmpeg.get_ffmpeg_exe()
-        st.write(f"DEBUG: imageio_ffmpeg.get_ffmpeg_exe() returned: `{ffmpeg_path}`")
-        
-        if os.path.exists(ffmpeg_path):
-            st.success(f"DEBUG: File exists at `{ffmpeg_path}`")
+    if not shutil.which("ffmpeg"):
+        try:
+            ffmpeg_path = iio_ffmpeg.get_ffmpeg_exe()
             
-            # Create a temporary directory to alias the binary as 'ffmpeg'
-            # We use a temp dir because we might not have write permissions in the package dir
-            import tempfile
-            temp_bin_dir = tempfile.mkdtemp()
-            target_ffmpeg = os.path.join(temp_bin_dir, "ffmpeg")
-            
-            # Copy the binary to 'ffmpeg' in the temp dir
-            shutil.copy(ffmpeg_path, target_ffmpeg)
-            
-            # Ensure it's executable (it should be, but let's make sure on our own copy)
-            try:
-                os.chmod(target_ffmpeg, 0o755)
-            except Exception as e:
-                st.warning(f"DEBUG: Could not chmod temp file: {e}")
+            if os.path.exists(ffmpeg_path):
+                # Create a temporary directory to alias the binary as 'ffmpeg'
+                import tempfile
+                temp_bin_dir = tempfile.mkdtemp()
+                target_ffmpeg = os.path.join(temp_bin_dir, "ffmpeg")
+                
+                # Copy the binary to 'ffmpeg' in the temp dir
+                shutil.copy(ffmpeg_path, target_ffmpeg)
+                
+                # Ensure it's executable
+                try:
+                    os.chmod(target_ffmpeg, 0o755)
+                except Exception:
+                    pass # Ignore permission errors
 
-            # Add the temp dir to PATH temporarily
-            os.environ["PATH"] = f"{temp_bin_dir}:{os.environ.get('PATH','')}"
-            st.write(f"DEBUG: Created 'ffmpeg' alias at `{target_ffmpeg}` and updated PATH")
-            
-        else:
-            st.error(f"DEBUG: File DOES NOT EXIST at `{ffmpeg_path}`")
-        
-    except Exception as e:
-        st.error(f"DEBUG: Error setting up bundled ffmpeg: {e}")
+                # Add the temp dir to PATH temporarily
+                os.environ["PATH"] = f"{temp_bin_dir}:{os.environ.get('PATH','')}"
+                
+        except Exception as e:
+            print(f"Error setting up bundled ffmpeg: {e}")
 
     if not shutil.which("ffmpeg"):
         st.error("FFmpeg not found! Please ensure ffmpeg is installed.")
-        st.write("DEBUG: shutil.which('ffmpeg') returned None")
-    else:
-        st.success(f"System/Bundled FFmpeg found at: `{shutil.which('ffmpeg')}`")
-        # Try running it to see if it works
-        try:
-            version_output = subprocess.check_output(["ffmpeg", "-version"]).decode().splitlines()[0]
-            st.write(f"DEBUG: ffmpeg version: `{version_output}`")
-        except Exception as e:
-            st.error(f"DEBUG: Failed to run ffmpeg: {e}")
     print("Loading Whisper model...")
     return whisper.load_model("base")
 
