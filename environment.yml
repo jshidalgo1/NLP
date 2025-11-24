@@ -10,3 +10,4 @@ dependencies:
     - openai-whisper
     - streamlit>=1.40.0
     - numpy
+    - imageio-ffmpeg

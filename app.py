@@ -4,6 +4,7 @@ import numpy as np
 import os
 import tempfile
 from baybayin import to_baybayin
+import imageio_ffmpeg as iio_ffmpeg
 
 # Page Configuration
 st.set_page_config(
@@ -42,11 +43,17 @@ def load_model():
     """Load the Whisper model (cached to avoid reloading)"""
     # Debug: Check if ffmpeg is available
     import shutil
+    # Use bundled ffmpeg from imageio_ffmpeg if system ffmpeg is missing
+    ffmpeg_path = iio_ffmpeg.get_ffmpeg_exe()
     if not shutil.which("ffmpeg"):
-        st.error("FFmpeg not found! Please ensure ffmpeg is installed.")
+        # Add the bundled binary to PATH temporarily
+        os.environ["PATH"] = f"{os.path.dirname(ffmpeg_path)}:{os.environ.get('PATH','')}"
+        if not shutil.which("ffmpeg"):
+            st.error("FFmpeg not found! Please ensure ffmpeg is installed.")
+        else:
+            print(f"Bundled FFmpeg found at: {ffmpeg_path}")
     else:
-        print(f"FFmpeg found at: {shutil.which('ffmpeg')}")
-        
+        print(f"System FFmpeg found at: {shutil.which('ffmpeg')}")
     print("Loading Whisper model...")
     return whisper.load_model("base")
 
